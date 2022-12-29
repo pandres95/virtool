@@ -2284,7 +2284,7 @@ dependencies = [
 [[package]]
 name = "scale-serialization"
 version = "1.0.0-beta2"
-source = "git+https://github.com/virto-network/scales.git?branch=main#cc3ae2a07bbcb9938c8700a9197d37430c564931"
+source = "git+https://github.com/pandres95/scales.git?branch=fix/tuple_deserialization#da7bd6e7429de1b6a5194bdbbc47ecb32e8392ed"
 dependencies = [
  "bytes",
  "hex",
@@ -2864,7 +2864,7 @@ dependencies = [
 [[package]]
 name = "sube"
 version = "0.5.1"
-source = "git+https://github.com/pandres95/sube.git?branch=fix/scales-with-compact#039c69045788c4507ae6ed91ce7b43fed815e956"
+source = "git+https://github.com/pandres95/sube.git?branch=fix/scales-with-compact#6a4fb255648bbff4842539470ae48c22fa34c6fa"
 dependencies = [
  "anyhow",
  "async-mutex",
