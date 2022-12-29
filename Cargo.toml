@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "poc-wallet-sube"
+name = "virtool"
 version = "1.0.0"
 
 [dependencies]
@@ -19,4 +19,4 @@ sp-core = {version = "7.0.0"}
 libwallet = {git = "https://github.com/virto-network/libwallet.git", branch = "master", features = ["vault_pass"]}
 scale-info = {version = "2.1.1"}
 serde = {version = "1.0.149"}
-sube = {git = "https://github.com/pandres95/sube.git", branch = "encode-tx"}
+sube = {git = "https://github.com/pandres95/sube.git", branch = "fix/scales-with-compact"}
