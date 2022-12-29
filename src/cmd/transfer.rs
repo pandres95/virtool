@@ -3,7 +3,10 @@ use crate::{
         sube::{initialize_client, SubeClient},
         wallet::{get_account, get_address, get_wallet, sign},
     },
-    model::{error::Error, result::Result},
+    model::{
+        error::{Cause, Error},
+        result::Result,
+    },
 };
 
 use parity_scale_codec::{Compact, Encode};
@@ -146,21 +149,46 @@ async fn construct_extrinsic_data(
 
     let additional_params = {
         // Error: Still failing to deserialize the const
-        // let mut constants = sube
-        //     .metadata()
-        //     .await?
-        //     .pallet_by_name("System")
-        //     .expect("System pallet should exist")
-        //     .constants
-        //     .iter();
-        // let data = constants
-        //     .find(|c| c.name == "Version");
-        // let data = data.expect("System_version constant should exist");
-        // let chain_version = sube.decode(data.value.clone(), data.ty.id()).await?;
-        // println!("{}", serde_json::to_string_pretty(&chain_version)?);
+        let metadata = sube
+            .metadata()
+            .await
+            .map_err(|e| Error::Sube(Box::new(e)))?
+            .clone();
 
-        let spec_version = 9360u32;
-        let transaction_version = 17u32;
+        let mut constants = metadata
+            .pallet_by_name("System")
+            .ok_or(Error::Codec(Box::new(Cause::from(
+                "System pallet not found on metadata",
+            ))))?
+            .constants
+            .clone()
+            .into_iter();
+
+        let data = constants
+            .find(|c| c.name == "Version")
+            .ok_or(Error::Codec(Box::new(Cause::from(
+                "System_Version constant not found",
+            ))))?
+            .clone()
+            .to_owned();
+
+        let chain_version = sube
+            .decode(data.value.to_vec(), data.ty.id())
+            .await
+            .map_err(|e| Error::Codec(Box::new(e)))?;
+        let chain_version =
+            serde_json::to_value(chain_version).map_err(|e| Error::Codec(Box::new(e)))?;
+
+        let spec_version = chain_version
+            .get("spec_version")
+            .ok_or(Error::Codec(Box::new(Cause::from("spec_version not found"))))?
+            .as_u64()
+            .ok_or(Error::Codec(Box::new(Cause::from("spec_version not a Number"))))? as u32;
+        let transaction_version = chain_version
+            .get("transaction_version")
+            .ok_or(Error::Codec(Box::new(Cause::from("transaction_version not found"))))?
+            .as_u64()
+            .ok_or(Error::Codec(Box::new(Cause::from("transaction_version not a Number"))))? as u32;
         let genesis_block: Vec<u8> = sube
             .block_info(Some(0u32))
             .await
